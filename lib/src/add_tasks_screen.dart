@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:todo_app/helper/database_helper.dart';
+import 'package:todo_app/model/task_model.dart';
 
 class AddTasksScreen extends StatefulWidget {
-  AddTasksScreen({Key key}) : super(key: key);
+  
+  final Task task;
+  final Function updateTaskList;
+
+  AddTasksScreen({this.updateTaskList, this.task});
 
   @override
   _AddTasksScreenState createState() => _AddTasksScreenState();
@@ -38,6 +44,17 @@ class _AddTasksScreenState extends State<AddTasksScreen> {
     if(_formKey.currentState.validate()){
       _formKey.currentState.save();
       print('$_title, $_date, $_priority');
+      Task task = Task(title: _title, date: _date, priority: _priority);
+      if (widget.task == null) {
+        // Insert the task to our user's database
+        task.status = 0;
+        DatabaseHelper.instance.insertTask(task);
+      } else {
+        // Update the task
+        task.status = widget.task.status;
+        DatabaseHelper.instance.updateTask(task);
+      }
+      widget.updateTaskList();
       Navigator.pop(context);
     }
   }
@@ -45,6 +62,11 @@ class _AddTasksScreenState extends State<AddTasksScreen> {
   @override
   void initState() {
     // TODO: implement initState
+    if(widget.task!=null){
+      _title=widget.task.title;
+      _date=widget.task.date;
+      _priority=widget.task.priority;
+    }
     _dateController.text=_dateFormat.format(_date);
     super.initState();
   }
