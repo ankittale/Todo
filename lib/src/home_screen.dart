@@ -10,8 +10,129 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // Future<List<Task>> _taskList;
+  // final DateFormat _dateFormat = DateFormat('MMM dd, yyyy');
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _updateTaskList();
+  // }
+
+  // _updateTaskList() {
+  //   setState(() {
+  //     _taskList = DatabaseHelper.instance.getTasksList();
+  //   });
+  // }
+
+  // Widget _builldTasks(Task task) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 25.0),
+  //     child: Column(
+  //       children: <Widget>[
+  //         ListTile(
+  //           title: Text(
+  //             task.title,
+  //             style: TextStyle(
+  //                 fontSize: 18.0,
+  //                 decoration: task.status == 0
+  //                     ? TextDecoration.none
+  //                     : TextDecoration.lineThrough),
+  //           ),
+  //           subtitle:
+  //               Text('${_dateFormat.format(task.date)} ‧ ${task.priority}'),
+  //           trailing: Checkbox(
+  //             onChanged: (value) {
+  //               task.status = value ? 1 : 0;
+  //               DatabaseHelper.instance.updateTask(task);
+  //             },
+  //             activeColor: Theme.of(context).primaryColor,
+  //             value: task.status==1?true:false,
+  //           ),
+  //           onTap: () => Navigator.push(context,
+  //               MaterialPageRoute(builder: (_) => AddTaskScreen(
+  //                 updateTaskList: _updateTaskList,
+  //                 task: task
+  //               )
+  //             )
+  //           ),
+  //         ),
+  //         Divider(),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   // TODO: implement build
+  //   return Scaffold(
+  //     floatingActionButton: FloatingActionButton(
+  //       onPressed: () => Navigator.push(
+  //           context, MaterialPageRoute(builder: (_) => AddTaskScreen(
+  //             updateTaskList: _updateTaskList,
+  //           )
+  //         )
+  //       ),
+  //       child: Icon(Icons.add),
+  //       backgroundColor: Theme.of(context).primaryColor,
+  //     ),
+  //     body: FutureBuilder(
+  //       future: _taskList,
+  //       builder: (context, snapshot) {
+  //         if (!snapshot.hasData) {
+  //           return Center(
+  //             child: CircularProgressIndicator(),
+  //           );
+  //         }
+
+  //         int completedTaskCount = snapshot.data
+  //             .where((Task task) => task.status == 1)
+  //             .toList()
+  //             .length;
+
+  //         return ListView.builder(
+  //           padding: EdgeInsets.symmetric(vertical: 80.0),
+  //           itemCount: 1 + snapshot.data.length,
+  //           itemBuilder: (BuildContext context, int index) {
+  //             if (index == 0) {
+  //               return Padding(
+  //                 padding:
+  //                     EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
+  //                 child: Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: <Widget>[
+  //                     Text(
+  //                       "My Tasks",
+  //                       style: TextStyle(
+  //                           color: Colors.black,
+  //                           fontSize: 40.0,
+  //                           fontWeight: FontWeight.bold),
+  //                     ),
+  //                     SizedBox(
+  //                       height: 10.0,
+  //                     ),
+  //                     Text(
+  //                       "$completedTaskCount of ${snapshot.data.length}",
+  //                       style: TextStyle(
+  //                         color: Colors.grey,
+  //                         fontSize: 20.0,
+  //                         fontWeight: FontWeight.w600,
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               );
+  //             }
+  //             return _builldTasks(snapshot.data[index - 1]);
+  //           },
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
   Future<List<Task>> _taskList;
-  final DateFormat _dateFormat = DateFormat('MMM dd, yyyy');
+  final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy');
 
   @override
   void initState() {
@@ -25,36 +146,47 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Widget _builldTasks(Task task) {
+  Widget _buildTask(Task task) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+      padding: EdgeInsets.symmetric(horizontal: 25.0),
       child: Column(
         children: <Widget>[
           ListTile(
             title: Text(
               task.title,
               style: TextStyle(
-                  fontSize: 18.0,
-                  decoration: task.status == 0
-                      ? TextDecoration.none
-                      : TextDecoration.lineThrough),
+                fontSize: 18.0,
+                decoration: task.status == 0
+                    ? TextDecoration.none
+                    : TextDecoration.lineThrough,
+              ),
             ),
-            subtitle:
-                Text('${_dateFormat.format(task.date)} + ${task.priority}'),
+            subtitle: Text(
+              '${_dateFormatter.format(task.date)} • ${task.priority}',
+              style: TextStyle(
+                fontSize: 15.0,
+                decoration: task.status == 0
+                    ? TextDecoration.none
+                    : TextDecoration.lineThrough,
+              ),
+            ),
             trailing: Checkbox(
-              value: true,
               onChanged: (value) {
                 task.status = value ? 1 : 0;
                 DatabaseHelper.instance.updateTask(task);
+                _updateTaskList();
               },
               activeColor: Theme.of(context).primaryColor,
+              value: task.status == 1 ? true : false,
             ),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => AddTasksScreen(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => AddTaskScreen(
                   updateTaskList: _updateTaskList,
-                  task: task
-                )
-              )
+                  task: task,
+                ),
+              ),
             ),
           ),
           Divider(),
@@ -65,17 +197,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-            context, MaterialPageRoute(builder: (_) => AddTasksScreen(
-              updateTaskList: _updateTaskList,
-            )
-          )
-        ),
-        child: Icon(Icons.add),
         backgroundColor: Theme.of(context).primaryColor,
+        child: Icon(Icons.add),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AddTaskScreen(
+              updateTaskList: _updateTaskList,
+            ),
+          ),
+        ),
       ),
       body: FutureBuilder(
         future: _taskList,
@@ -86,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
 
-          int completedTaskCount = snapshot.data
+          final int completedTaskCount = snapshot.data
               .where((Task task) => task.status == 1)
               .toList()
               .length;
@@ -103,17 +236,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "My Tasks",
+                        'My Tasks',
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 40.0,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.black,
+                          fontSize: 40.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      SizedBox(
-                        height: 10.0,
-                      ),
+                      SizedBox(height: 10.0),
                       Text(
-                        "$completedTaskCount of ${snapshot.data.length}",
+                        '$completedTaskCount of ${snapshot.data.length}',
                         style: TextStyle(
                           color: Colors.grey,
                           fontSize: 20.0,
@@ -124,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               }
-              return _builldTasks(snapshot.data[index - 1]);
+              return _buildTask(snapshot.data[index - 1]);
             },
           );
         },
