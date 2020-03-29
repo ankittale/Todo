@@ -1,6 +1,10 @@
 # todo_app
 
-A new Flutter project.
+A small todo application return in dart that uses **sqFlite librrary** to perform basic CURD operation
+
+<img src="images/Screenshot_20200329-151714.png" alt="Main Screen" height="1200" width="600">
+<img src="images/Screenshot_20200329-151719.png" alt="Another Screen" height="1200" width="600">
+<img src="images/Screenshot_20200329-151732.png" alt="Main Screen" height="1200" width="600">
 
 ## Getting Started
 
